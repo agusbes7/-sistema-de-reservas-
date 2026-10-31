@@ -19,6 +19,7 @@ import repository.dao.UserDao;
 import util.Pair;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -65,13 +66,24 @@ public class ReservationService {
         request.date());
   }
 
-  // Ejercicio 1
-  public List<Reservation> getReservationsByUser(
-      List<Reservation> reservations, String username, UserDao userDao)
+ // Ejercicio 1      Filtrado y ordenamiento por precio
+  public List<Reservation> getReservationsByUser(List<Reservation> reservations, String username, UserDao userDao)
       throws UserNotFoundException, DataAccessException {
-    throw new UnsupportedOperationException("Ejercicio 1: implement getReservationsByUser");
-  }
-
+      // 1. Validar que el usuario exista (tu código actual)
+      userDao.findByUsername(username)
+              .orElseThrow(() -> new UserNotFoundException(username));
+      //2. filtrar las reservas del usuario
+    List<Reservation> reservas=
+            reservations.stream()
+                            .filter(r ->
+                                   r.getOwner()!=null
+                                   && r.getOwner().getUsername()!=null
+                                   && r.getOwner().getUsername().equals(username))
+       // 3. establecer el precio como criterio de comparacion
+                    .sorted(Comparator.comparing(Reservation::calculatePrice).reversed())
+                    .toList();
+  return reservas;  }
+  
   // Ejercicio 3
   public List<Reservation> getTopNMostExpensive(
       ReservationDao reservationDao, Instant from, Instant to, int n)
