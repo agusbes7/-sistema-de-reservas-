@@ -65,7 +65,7 @@ public class ReservationService {
         reservation.calculatePrice(),
         request.date());
   }
-
+//----------------------------------------------------------------------------------------------------
  // Ejercicio 1      Filtrado y ordenamiento por precio
   public List<Reservation> getReservationsByUser(List<Reservation> reservations, String username, UserDao userDao)
       throws UserNotFoundException, DataAccessException {
@@ -83,7 +83,7 @@ public class ReservationService {
                     .sorted(Comparator.comparing(Reservation::calculatePrice).reversed())
                     .toList();
   return reservas;  }
-  
+  //----------------------------------------------------------------------------------------------------
   // Ejercicio 3
   public List<Reservation> getTopNMostExpensive(
       ReservationDao reservationDao, Instant from, Instant to, int n)
@@ -95,21 +95,38 @@ public class ReservationService {
   public Map<String, List<Reservation>> groupReservationsByCountry(List<Reservation> reservations) {
     throw new UnsupportedOperationException("Ejercicio 5: implement groupReservationsByCountry");
   }
-
+/*
+Ejercicio 7 — Creación de reserva con validación completa y manejo de fallo en persistencia
+   ReservationService.createReservation(String username, String flightNumber, Instant date, UserDao, FlightDao, ReservationDao)
+Deben validarse el usuario, el vuelo y que la fecha no sea nula ni anterior al momento actual (InvalidDateRangeException), 
+construir la reserva con Reservation.Builder y persistirla. Si save() lanza DataAccessException, esta no debe propagarse tal cual:
+ debe envolverse en una nueva DataAccessException cuyo mensaje incluya el username y el flightNumber.
+*/
   // Ejercicio 7
-  public Reservation createReservation(
-      String username,
-      String flightNumber,
-      Instant date,
-      UserDao userDao,
-      FlightDao flightDao,
-      ReservationDao reservationDao)
-      throws UserNotFoundException,
-          FlightNotFoundException,
-          InvalidDateRangeException,
-          DataAccessException {
-    throw new UnsupportedOperationException("Ejercicio 7: implement createReservation");
-  }
+  public Reservation createReservation(String username,String flightNumber,Instant date,UserDao userDao,
+      FlightDao flightDao,ReservationDao reservationDao)
+      throws UserNotFoundException,FlightNotFoundException,
+          InvalidDateRangeException,DataAccessException {
+
+User p=userDao.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+
+TouristService f=flightDao.findByNumber(flightNumber).orElseThrow(() -> new FlightNotFoundException(flightNumber));
+
+if(date!=null){
+  if(date.isBefore(Instant.now())){  throw new InvalidDateRangeException(date.toString());}
+}else{throw new InvalidDateRangeException("null");}
+Reservation r=new Reservation.Builder()
+    .owner(p)
+    .service(f)
+    .date(date)
+    .build();
+  try {
+    reservationDao.save(r);
+} catch (DataAccessException e) {
+    throw new DataAccessException("Error saving reservation for user: " + username + " and flight: " + flightNumber, e);
+} 
+return r;
+}
 
   // Ejercicio 8
   public Reservation addReservationIfNotDuplicate(
