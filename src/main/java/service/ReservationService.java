@@ -95,14 +95,8 @@ public class ReservationService {
   public Map<String, List<Reservation>> groupReservationsByCountry(List<Reservation> reservations) {
     throw new UnsupportedOperationException("Ejercicio 5: implement groupReservationsByCountry");
   }
-/*
-Ejercicio 7 — Creación de reserva con validación completa y manejo de fallo en persistencia
-   ReservationService.createReservation(String username, String flightNumber, Instant date, UserDao, FlightDao, ReservationDao)
-Deben validarse el usuario, el vuelo y que la fecha no sea nula ni anterior al momento actual (InvalidDateRangeException), 
-construir la reserva con Reservation.Builder y persistirla. Si save() lanza DataAccessException, esta no debe propagarse tal cual:
- debe envolverse en una nueva DataAccessException cuyo mensaje incluya el username y el flightNumber.
-*/
-  // Ejercicio 7
+  //----------------------------------------------------------------------------------------------------
+  // Ejercicio 7 Creacion de reserva con validaciones
   public Reservation createReservation(String username,String flightNumber,Instant date,UserDao userDao,
       FlightDao flightDao,ReservationDao reservationDao)
       throws UserNotFoundException,FlightNotFoundException,
@@ -127,6 +121,7 @@ Reservation r=new Reservation.Builder()
 } 
 return r;
 }
+  //----------------------------------------------------------------------------------------------------
 
   // Ejercicio 8
   public Reservation addReservationIfNotDuplicate(
