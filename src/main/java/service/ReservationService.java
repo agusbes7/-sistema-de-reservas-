@@ -129,7 +129,26 @@ return r;
       Reservation newReservation,
       ReservationDao reservationDao)
       throws DuplicateReservationException, DataAccessException {
-    throw new UnsupportedOperationException("Ejercicio 8: implement addReservationIfNotDuplicate");
+
+    boolean duplicado = existingReservations.stream().anyMatch(r ->
+           r.getOwner().getId().equals(newReservation.getOwner().getId()) &&
+            r.getService().getId().equals(newReservation.getService().getId())
+        );
+
+    if (duplicado) {
+      throw new DuplicateReservationException(
+          String.valueOf(newReservation.getOwner().getId()),
+          String.valueOf(newReservation.getService().getId())
+      );
+    }
+
+    try {
+      reservationDao.save(newReservation);
+    } catch (DataAccessException e) {
+      throw new DataAccessException("Error ", e);
+    }
+
+    return newReservation;
   }
 
   // Ejercicio 10
