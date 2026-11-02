@@ -19,6 +19,7 @@ import repository.dao.UserDao;
 import util.Pair;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -84,13 +85,23 @@ public class ReservationService {
                     .toList();
   return reservas;  }
   //----------------------------------------------------------------------------------------------------
-  // Ejercicio 3
-  public List<Reservation> getTopNMostExpensive(
-      ReservationDao reservationDao, Instant from, Instant to, int n)
+// Ejercicio 3---------REALIZADO POR GIOVANI MICHELOTTI--------CLASE:RESERVATIONSERVICE------------- 
+   public List<Reservation> getTopNMostExpensive(ReservationDao reservationDao, Instant from, Instant to, int n)
       throws InvalidDateRangeException, DataAccessException {
-    throw new UnsupportedOperationException("Ejercicio 3: implement getTopNMostExpensive");
-  }
+      // Validacion de rango
+    if (from == null || to == null || from.isAfter(to)) {
+      throw new InvalidDateRangeException("rango de fechas invalido");//verifico el rango
+    }
+    if (n <= 0) {
+      return new ArrayList<Reservation>();  }
 
+    return reservationDao.findByDateRange(from, to)
+            .stream()
+            .sorted(Comparator.comparing(Reservation::calculatePrice).reversed())
+            .limit(n)
+            .toList();
+    }
+    //----------------------------------------------------------------------------------------------------
   // Ejercicio 5
   public Map<String, List<Reservation>> groupReservationsByCountry(List<Reservation> reservations) {
     throw new UnsupportedOperationException("Ejercicio 5: implement groupReservationsByCountry");
